@@ -1,35 +1,37 @@
-const jwt = require('jsonwebtoken')
-const bcrypt = require('bcryptjs')
-const asyncHandler = require('express-async-handler')
-const User = require('../models/userModel')
+const asyncHandler = require('express-async-handler');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const Users = require("../models/userModel")
 
-// @desc     Register new user
-// @route    POST /api/users
-// @access   Public
-const registerUser = asyncHandler(async (req, res) => {
 
-    const {name, email, password} = req.body
+// @desc    Register new user
+// @route   POST /api/users
+// @access  Public
+const register = asyncHandler(async (req, res) => {
+
+    const {name, email, password} = req.body;
+
     if(!name || !email || !password){
-        res.status(400)
-        throw new Error('Please add all fields')
-    }
-    // Check if user exists
-    const userExists = await User.findOne({email})
-
-    if(userExists){
         res.status(400);
-        throw new Error('User already exists')
+        throw new Error('Please add all fields');
+    }
+
+    // Check if user exists
+    const userExits = await Users.findOne({email});
+
+    if(userExits){
+        res.status(400);
+        throw new Error('User already exists');
     }
 
     // Hash password
-    const salt = await bcrypt.genSalt(10)
-    const hashedPwd = await bcrypt.hash(password, salt)
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);23
 
-    // Create user
-    const user = await User.create({
+    const user = await Users.create({
         name,
         email,
-        password: hashedPwd
+        password: hashedPassword
     })
 
     if(user){
@@ -37,41 +39,31 @@ const registerUser = asyncHandler(async (req, res) => {
             _id: user.id,
             name: user.name,
             email: user.email,
-            // token: generateToken(user._id)
+            // token: generateToken(user._id),
         })
     }else{
-        res.status(400)
-        throw new Error('Invalid user data')
+        res.status(400);
+        throw new Error('Invalid user data');
     }
 
-    res.json({body: req.body})
 })
 
-
-// @desc     Authenticate a user
-// @route    POST /api/users/login
-// @access   Public
-const loginUser = asyncHandler(async (req, res) => {
-    res.json({message: 'Authenticated'})
+// @desc    Authenticate user
+// @route   POST /api/users/login
+// @access  Public
+const userLogin = asyncHandler(async (req, res) => {
+    res.json({message: 'Logged in'});
 })
 
-// @desc     Get user data
-// @route    GET /api/users/me
-// @access   Private
+// @desc    Get user data
+// @route   GET /api/users/me
+// @access  Private
 const getMe = asyncHandler(async (req, res) => {
-    res.json({message: 'Get User'})
-})
-
-// @desc     Delete user
-// @route    DELETE /api/users/delete
-// @access   Public
-const deleteUser = asyncHandler(async (req, res) => {
-    res.json({message: 'Delete User'})
+    res.json({message: 'User data'});
 })
 
 module.exports = {
-    registerUser,
-    loginUser,
-    getMe,
-    deleteUser,
+    register,
+    userLogin,
+    getMe
 }
