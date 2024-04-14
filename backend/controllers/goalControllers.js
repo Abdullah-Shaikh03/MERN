@@ -1,11 +1,13 @@
 const asyncHandler = require('express-async-handler');
 
 const Goal = require('../models/goalModel');
+const User = require('../models/userModel');
+
 //@desc     GET goals
 //@route    GET /api/goals
 //@access   Private
 const getGoals = asyncHandler(async (req, res) => {
-    const goals = await Goal.find();
+    const goals = await Goal.find({user: req.user.id});
     res.status(200).json(goals);
 })
 
@@ -19,6 +21,7 @@ const setGoals = asyncHandler(async (req, res) => {
     };
 
     const goal = await Goal.create({
+        user: req.user.id, 
         text: req.body.text
     })
 
@@ -34,17 +37,25 @@ const updateGoals = asyncHandler(async (req, res) => {
     if (!goal) {
         res.status(400)
         throw new Error('Goal not found');
-    } else {
-        // Declare updatedGoal outside of the else block
-        let updatedGoal;
-
-        updatedGoal = await Goal.findByIdAndUpdate(req.params.id, req.body, {
-            new: true
-        });
-
-        // Now you can access updatedGoal outside of the else block
-        res.status(200).json(updatedGoal);
     }
+    
+    const user = await User.findById(req.user.id);
+    if(!user){
+        res.status(401);
+        throw new Error('User not found');
+    }
+
+    if(goal.user.toString() !== user.id){
+        res.status(401);
+        throw new Error('User not authorized');
+    }
+    // Declare updatedGoal outside of the else block
+        const updatedGoal = await Goal.findByIdAndUpdate(req.params.id, req.body, {
+        new: true
+    });
+    // Now you can access updatedGoal outside of the else block
+    res.status(200).json(updatedGoal);
+    
 });
 
 //@desc     GET goals
