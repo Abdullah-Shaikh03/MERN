@@ -17,5 +17,5 @@ app.use('/api/users', require('./routes/userRoutes'));
 app.use(errorHandler);
 
 app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`);
+    console.log(`Example app listening at http://localhost:${port}`.bgCyan.underline);
 });
