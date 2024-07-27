@@ -6,6 +6,11 @@ const goalSchema = mongoose.Schema(
       type: String,
       required: [true, "Please enter a text value."],
     },
+    user:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    }
   },
   { timestamps: true }
 );
